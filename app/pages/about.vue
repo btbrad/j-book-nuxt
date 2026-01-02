@@ -1,6 +1,7 @@
 <template>
   <div>
-    about页面
+    <h1>about页面</h1>
+    <CurrentTime />
   </div>
 </template>
 
