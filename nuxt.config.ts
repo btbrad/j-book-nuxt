@@ -8,5 +8,9 @@ export default defineNuxtConfig({
     plugins: [],
   },
 
-  modules: ['@ant-design-vue/nuxt'],
+  modules: [
+    '@ant-design-vue/nuxt',
+    '@pinia/nuxt',
+    '@pinia-plugin-persistedstate/nuxt',
+  ],
 })
