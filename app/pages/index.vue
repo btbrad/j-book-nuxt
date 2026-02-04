@@ -12,10 +12,34 @@ import { NuxtLink } from '../../.nuxt/components';
   <a-button type="primary" @click="info">message插件</a-button>
   <h1>count: {{ myStore.count }}</h1>
   <a-button @click="handleAdd">+1</a-button>
+  <h1>useState counter: {{ counter }}</h1>
+  <a-button @click="handleAddCounter">+1</a-button>
 </template>
 
 <script setup lang="ts">
 import { useMystore } from '~/store/myStore'
+
+// const counter = useState('counter', () => 0)
+// counter.value = 10
+
+const counter = useCounter()
+const handleAddCounter = () => {
+  counter.value++
+}
+
+const userInfoCookie = useCookie<Record<string, any>>('userInfo', { maxAge: 60 * 60 * 24 * 7 })
+userInfoCookie.value = {
+  name: 'j-book',
+  age: 18
+}
+
+// const { data, pending, error } = useFetch('https://api.nuxtjs.dev/mountains', {
+//   server: false
+// })
+
+const { data, pending, error } = useFetch('/user', {
+  server: false
+})
 
 const myStore = useMystore()
 
