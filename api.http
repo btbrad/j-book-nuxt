@@ -1,0 +1,10 @@
+### 注册接口
+
+POST http://localhost:3000/api/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "nickname": "测试用户",
+    "phone": "17775336688",
+    "password": "123456"
+}
