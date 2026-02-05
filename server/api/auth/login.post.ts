@@ -1,6 +1,6 @@
 import Joi from 'joi'
 import md5 from 'md5'
-import { responseJson } from '~~/server/utils/helper'
+import jwt from 'jsonwebtoken'
 
 export default defineEventHandler(async (event) => {
   /**
@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
    * 参数验证
    */
   const schema = Joi.object({
-    nickname: Joi.string().required(),
     phone: Joi.string()
       .pattern(/^1[3456789]\d{9}$/)
       .required(),
@@ -39,31 +38,34 @@ export default defineEventHandler(async (event) => {
      * 验证手机号是否已注册
      */
     const [rows] = await (con as any).execute(
-      'Select * from users where phone = ?',
-      [body.phone],
+      'Select * from users where phone = ? and password = ?',
+      [body.phone, password],
     )
 
-    if (rows.length) {
-      return responseJson(1, '手机号已注册')
+    if (!rows.length) {
+      return responseJson(1, '账号或密码错误')
     }
-
-    /**
-     * 插入用户信息
-     */
-    const [rows2] = await (con as any).execute(
-      'Insert into users (nickname, phone, password) values (?, ?, ?)',
-      [body.nickname, body.phone, password],
-    )
-
     // 释放连接
     ;(con as any).end()
-    if (rows2.affectedRows === 1) {
-      return responseJson(0, '注册成功')
-    }
+    // 生成token
+    const secret = 'j-book-nuxt'
+    const token = jwt.sign(
+      {
+        exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        data: { data: rows[0].id },
+      },
+      secret,
+    )
+    return responseJson(0, '登录成功', {
+      accessToken: token,
+      userInfo: {
+        nickname: rows[0].nickname,
+        phone: rows[0].phone,
+        id: rows[0].id,
+      },
+    })
   } catch (error) {
     ;(con as any).end()
     return responseJson(1, '服务器错误')
   }
-
-  return {}
 })
