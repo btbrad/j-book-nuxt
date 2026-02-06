@@ -18,3 +18,13 @@ content-type: application/json
   "phone": "17775336644",
   "password": "123456"
 }
+
+### 创建文集接口
+
+POST http://localhost:3000/api/note/notebook HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAzODk5MzMsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwMzg2MzMzfQ.nXO7UlAVlsbnJk7jJhizCNfS_QLGLs3icAjtfiYF4Is
+
+{
+  "name": "我的文集1"
+}

@@ -8,8 +8,8 @@ export default defineEventHandler((event) => {
     try {
       const decoded = jwt.verify(token, secret)
       // 类型检查：确保 decoded 是 JwtPayload 类型
-      if (typeof decoded !== 'string' && decoded.data?.uid) {
-        event.context.auth = { uid: decoded.data.uid }
+      if (typeof decoded !== 'string' && decoded.data?.data?.uid) {
+        event.context.auth = { uid: decoded.data.data.uid }
       }
     } catch (error) {
       console.log('jwt解码错误', error)

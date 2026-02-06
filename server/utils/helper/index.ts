@@ -5,5 +5,5 @@ export const responseJson = (code: number, msg: string, data = {}) => {
 }
 
 export const getLoginUid = (event: H3Event) => {
-  return event.context.auth ? event.context.auth : 0
+  return event.context.auth ? event.context.auth.uid : 0
 }
