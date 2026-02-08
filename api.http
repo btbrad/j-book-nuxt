@@ -67,3 +67,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTk0O
 {
   "notebookId": 1
 }
+
+### 修改文章接口
+
+PUT http://localhost:3000/api/note/note HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTk0ODAsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTU1ODgwfQ.b2TPa3ccneuk7VUtykb8ebN5ewdLHf8pGikwmh6eaTE
+
+{
+  "noteId": 3,
+  "title": "我的文章3",
+  "content_md": "我的文章3内容",
+  "state": 1
+}
