@@ -23,10 +23,10 @@ content-type: application/json
 
 POST http://localhost:3000/api/note/notebook HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAzODk5MzMsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwMzg2MzMzfQ.nXO7UlAVlsbnJk7jJhizCNfS_QLGLs3icAjtfiYF4Is
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwNjQsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTUwNDY0fQ.r149Da-ibWUWlOhd8rsbzlWQEumIAKsdM-53BLC7bqs
 
 {
-  "name": "我的文集1"
+  "name": "我的文集5"
 }
 
 ### 修改文集接口
@@ -43,3 +43,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwN
 GET http://localhost:3000/api/note/notebook HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwNjQsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTUwNDY0fQ.r149Da-ibWUWlOhd8rsbzlWQEumIAKsdM-53BLC7bqs
+
+### 删除文集接口
+DELETE http://localhost:3000/api/note/notebook HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwNjQsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTUwNDY0fQ.r149Da-ibWUWlOhd8rsbzlWQEumIAKsdM-53BLC7bqs
+
+{
+  "id": 3
+}
