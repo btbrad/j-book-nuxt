@@ -29,7 +29,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAzODk5M
   "name": "我的文集1"
 }
 
-### 修改文章接口
+### 修改文集接口
 PUT http://localhost:3000/api/note/notebook HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwNjQsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTUwNDY0fQ.r149Da-ibWUWlOhd8rsbzlWQEumIAKsdM-53BLC7bqs
@@ -38,3 +38,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwN
   "id": 1,
   "name": "我的文集1修改"
 }
+
+### 获取用户文集接口
+GET http://localhost:3000/api/note/notebook HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwNjQsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTUwNDY0fQ.r149Da-ibWUWlOhd8rsbzlWQEumIAKsdM-53BLC7bqs
