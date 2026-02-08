@@ -97,3 +97,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NjI5N
 {
   "noteId": 2
 }
+
+### 获取所有文章接口
+
+GET http://localhost:3000/api/note/note?page=1&pageSize=2 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NjI5NTIsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTU5MzUyfQ.QhsFXNvpktr8dTvaelClg4OfofjGxs2tZV_naZan_yA

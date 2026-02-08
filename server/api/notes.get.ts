@@ -1,13 +1,4 @@
-import Joi from 'joi'
-
 export default defineEventHandler(async (event) => {
-  // 检查是否登录
-  const uid = getLoginUid(event)
-  if (!uid) {
-    setResponseStatus(event, 401)
-    return responseJson(1, '请先登录')
-  }
-
   // 获取数据
   const params = getQuery(event)
 
@@ -18,9 +9,8 @@ export default defineEventHandler(async (event) => {
      * 获取用户的文章
      */
     const [rows2] = await (con as any).execute(
-      'SELECT * FROM notes WHERE uid = ? LIMIT ? OFFSET ?',
+      'SELECT * FROM notes LIMIT ? OFFSET ?',
       [
-        uid,
         Number(params.pageSize),
         (Number(params.page) - 1) * Number(params.pageSize),
       ],

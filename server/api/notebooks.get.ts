@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
     // 释放连接
     ;(con as any).end()
-    return responseJson(0, '获取成功', rows2)
+    return responseJson(0, '获取成功', { list: rows2 })
   } catch (error) {
     ;(con as any).end()
     setResponseStatus(event, 500)
