@@ -57,3 +57,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwN
 GET http://localhost:3000/api/notebooks HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTQwNjQsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTUwNDY0fQ.r149Da-ibWUWlOhd8rsbzlWQEumIAKsdM-53BLC7bqs
+
+### 创建文章接口
+
+POST http://localhost:3000/api/note/note HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NTk0ODAsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTU1ODgwfQ.b2TPa3ccneuk7VUtykb8ebN5ewdLHf8pGikwmh6eaTE
+
+{
+  "notebookId": 1
+}
