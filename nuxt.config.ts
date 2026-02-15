@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Components from 'unplugin-vue-components/vite'
 
 export default defineNuxtConfig({
   runtimeConfig: {
@@ -13,7 +16,18 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   vite: {
-    plugins: [],
+    plugins: [
+      Components({
+        resolvers: [
+          IconsResolver({
+            prefix: 'Icon',
+          }),
+        ],
+      }),
+      Icons({
+        autoInstall: true,
+      }),
+    ],
   },
 
   modules: [

@@ -14,6 +14,7 @@ import { NuxtLink } from '../../.nuxt/components';
   <a-button @click="handleAdd">+1</a-button>
   <h1>useState counter: {{ counter }}</h1>
   <a-button @click="handleAddCounter">+1</a-button>
+  <IconAntDesignAccount-book-filled style="font-size: 24px; color: blue;" />
 </template>
 
 <script setup lang="ts">
