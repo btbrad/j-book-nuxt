@@ -14,6 +14,7 @@
     "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
     "@pinia/nuxt": "^0.11.3",
     "ant-design-vue": "^4.2.6",
+    "cos-nodejs-sdk-v5": "^2.15.4",
     "dayjs": "^1.11.19",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
