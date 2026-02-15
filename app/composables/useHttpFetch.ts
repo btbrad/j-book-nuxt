@@ -13,7 +13,7 @@ export const useHttpFetch = (url: string, opt: FetchOptions) => {
   opt.headers = headers
   return useFetch(url, {
     ...opt,
-    baseURL: '',
+    baseURL: 'http://localhost:3000',
     onRequest({ request, options }) {
       // Set the request headers
       // note that this relies on ofetch >= 1.4.0 - you may need to refresh your lockfile
@@ -32,4 +32,9 @@ export const useHttpFetch = (url: string, opt: FetchOptions) => {
       console.log('response', response)
     },
   })
+}
+
+// 注册接口
+export const registerFetch = (opt: FetchOptions) => {
+  return useHttpFetch('/api/auth/register', opt)
 }
