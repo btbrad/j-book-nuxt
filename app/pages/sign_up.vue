@@ -64,8 +64,7 @@ const onFinish = (values: FormState) => {
   registerFetch({
     method: 'POST',
     body: values,
-    server: false,
-    key: 'registerFetch'
+    server: false
   }).then(({ data }: any) => {
     console.log('data', data)
     if (data?.value?.code === 1) {
