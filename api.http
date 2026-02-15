@@ -104,3 +104,9 @@ GET http://localhost:3000/api/note/note?page=1&pageSize=2 HTTP/1.1
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA1NjI5NTIsImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcwNTU5MzUyfQ.QhsFXNvpktr8dTvaelClg4OfofjGxs2tZV_naZan_yA
+
+### 获取用户文集下的文章接口
+GET http://localhost:3000/api/note/notes?notebookId=1 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzExMzEwNzksImRhdGEiOnsiZGF0YSI6eyJ1aWQiOjN9fSwiaWF0IjoxNzcxMTI3NDc5fQ.2lS2C67KbpU2pmpgW0eq2Lb5_guwaWMW16q7VwxZ2TE
