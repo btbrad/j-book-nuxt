@@ -61,6 +61,7 @@ export default defineEventHandler(async (event) => {
       userInfo: {
         nickname: rows[0].nickname,
         phone: rows[0].phone,
+        avatar: rows[0].avatar,
         id: rows[0].id,
       },
     })

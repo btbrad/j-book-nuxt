@@ -37,6 +37,7 @@
 
         <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
           <a-button class="w-full" type="primary" html-type="submit">注册</a-button>
+          <div>已有账号？<NuxtLink to="/sign_in"><span class="text-blue-500">去登录</span></NuxtLink></div>
         </a-form-item>
       </a-form>
     </div>

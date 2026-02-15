@@ -38,3 +38,8 @@ export const useHttpFetch = (url: string, opt: FetchOptions) => {
 export const registerFetch = (opt: FetchOptions) => {
   return useHttpFetch('/api/auth/register', opt)
 }
+
+// 登录接口
+export const loginFetch = (opt: FetchOptions) => {
+  return useHttpFetch('/api/auth/login', opt)
+}
