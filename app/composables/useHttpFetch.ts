@@ -1,3 +1,5 @@
+import { callWithNuxt } from '#app'
+
 interface FetchOptions {
   headers?: Record<string, string>
   [key: string]: any
@@ -5,12 +7,13 @@ interface FetchOptions {
 
 export const useHttpFetch = (url: string, opt: FetchOptions) => {
   // token
-  const token = useCookie('token')
+  const token = useCookie('accessToken')
   const headers = {
     ...opt.headers,
     Authorization: token.value ? `Bearer ${token.value}` : '',
   }
   opt.headers = headers
+  const nuxtApp = useNuxtApp()
   return useFetch(url, {
     ...opt,
     baseURL: 'http://localhost:3000',
@@ -25,11 +28,19 @@ export const useHttpFetch = (url: string, opt: FetchOptions) => {
     },
     onResponse({ request, response, options }) {
       // Process the response data
-      console.log('response', response)
+      // console.log('response', response)
     },
-    onResponseError({ request, response, options }) {
+    async onResponseError({ request, response, options }) {
       // Handle the response errors
-      console.log('response', response)
+      if (response.status === 401) {
+        token.value = ''
+        await callWithNuxt(nuxtApp, navigateTo, [
+          'sign_in',
+          { replace: true, redirectCode: 401 },
+        ])
+      } else if (response.status === 500) {
+        console.log('服务器错误')
+      }
     },
   })
 }
@@ -42,4 +53,9 @@ export const registerFetch = (opt: FetchOptions) => {
 // 登录接口
 export const loginFetch = (opt: FetchOptions) => {
   return useHttpFetch('/api/auth/login', opt)
+}
+
+// 文集接口
+export const notebookFetch = (opt: FetchOptions) => {
+  return useHttpFetch('/api/note/notebook', opt)
 }

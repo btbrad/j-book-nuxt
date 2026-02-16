@@ -15,13 +15,13 @@
       </div>
 
       <!-- 搜索框 -->
-      <div class="px-3 py-3">
+      <!-- <div class="px-3 py-3">
         <a-input-search
           placeholder="搜索文集"
           size="small"
           class="search-input"
         />
-      </div>
+      </div> -->
 
       <!-- 新建文集按钮 -->
       <div class="px-3 mb-2">
@@ -29,6 +29,7 @@
           block
           size="small"
           class="flex items-center justify-center gap-1"
+          @click="showCreateNotebookModal = true"
         >
           <IconAntDesignPlusOutlined class="text-sm" />
           新建文集
@@ -38,7 +39,7 @@
       <!-- 文集列表 -->
       <nav class="flex-1 px-2 overflow-y-auto space-y-0.5">
         <div
-          v-for="collection in collections"
+          v-for="collection in notebookData.data.list"
           :key="collection.id"
           class="group flex items-center justify-between px-3 py-2.5 text-zinc-300 hover:bg-zinc-700/50 rounded cursor-pointer transition-colors text-sm"
           :class="selectedCollection?.id === collection.id ? 'bg-zinc-700/50 border-l-2 border-orange-500' : ''"
@@ -49,7 +50,7 @@
             <span class="truncate">{{ collection.name }}</span>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <span class="text-xs text-zinc-500">{{ collection.count }}</span>
+            <!-- <span class="text-xs text-zinc-500">{{ collection.count }}</span> -->
             <IconAntDesignSettingOutlined
               class="text-xs opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity"
               @click.stop
@@ -221,10 +222,40 @@
         </div>
       </div>
     </aside>
+
+    <!-- 新建文集弹窗 -->
+    <a-modal
+      v-model:open="showCreateNotebookModal"
+      title="新建文集"
+      :ok-text="'确定'"
+      :cancel-text="'取消'"
+      @ok="handleCreateNotebook"
+      @cancel="handleCancelCreateNotebook"
+    >
+      <div class="py-4">
+        <a-form-item label="文集名称" :colon="false">
+          <a-input
+            v-model:value="notebookName"
+            placeholder="请输入文集名称"
+            @pressEnter="handleCreateNotebook"
+          />
+        </a-form-item>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+interface CollectionData {
+  id: number
+  name: string
+  created_at: string
+  updated_at: string
+  uid: number
+}
+
+const { $message } = useNuxtApp()
+
 // 图标名称配置
 const editorTools = [
   { icon: 'IconAntDesignFontSizeOutlined', title: '标题' },
@@ -239,15 +270,67 @@ const editorTools = [
   { icon: 'IconAntDesignSyncOutlined', title: '同步' },
   { icon: 'IconAntDesignFullscreenOutlined', title: '全屏' },
 ]
+/**
+ * 文集
+ */
+// 选中的文集
+const selectedCollection = ref<CollectionData>()
 
-// 文集数据
-const collections = ref([
-  { id: 1, name: '我的随笔', count: 12 },
-  { id: 2, name: '技术笔记', count: 8 },
-  { id: 3, name: '生活记录', count: 5 },
-  { id: 4, name: '读书笔记', count: 3 },
-  { id: 5, name: '工作文档', count: 7 },
-])
+// 获取文集
+const { data: notebookData, refresh }: any = await notebookFetch({
+  method: 'GET',
+})
+if (notebookData.value.code === 1) {
+  throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
+}
+
+if (!selectedCollection.value && notebookData.value.data.list.length > 0) {
+  selectedCollection.value = notebookData.value.data.list[0]
+}
+
+// 选择文集
+const selectCollection = (collection: CollectionData) => {
+  selectedCollection.value = collection
+}
+
+// 新建文集弹窗
+const showCreateNotebookModal = ref(false)
+const notebookName = ref('')
+
+// 创建文集
+const handleCreateNotebook = async () => {
+  if (!notebookName.value.trim()) {
+    $message.warning('请输入文集名称')
+    return
+  }
+
+  try {
+    const { data: postData }: any = await notebookFetch({
+      method: 'POST',
+      body: { name: notebookName.value },
+      server: false
+    })
+
+    if (postData.value.code === 0) {
+      $message.success('文集创建成功')
+      // 刷新文集列表
+      await refresh()
+      // 关闭弹窗并清空输入
+      showCreateNotebookModal.value = false
+      notebookName.value = ''
+    } else {
+      $message.error(postData.value.msg || '创建失败')
+    }
+  } catch (error) {
+    $message.error('创建失败，请重试')
+  }
+}
+
+// 取消创建文集
+const handleCancelCreateNotebook = () => {
+  showCreateNotebookModal.value = false
+  notebookName.value = ''
+}
 
 // 文章数据
 const articles = ref([
@@ -289,7 +372,6 @@ const articles = ref([
 ])
 
 // 选中的文集和文章
-const selectedCollection = ref(collections.value[0])
 const selectedArticle = ref(articles.value[0])
 
 // 编辑器内容
@@ -309,11 +391,6 @@ npx nuxi init <project-name>
 npm install --save ant-design-vue
 \`\`\`
 `)
-
-// 选择文集
-const selectCollection = (collection: any) => {
-  selectedCollection.value = collection
-}
 
 // 选择文章
 const selectArticle = (article: any) => {

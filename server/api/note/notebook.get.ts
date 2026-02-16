@@ -15,17 +15,13 @@ export default defineEventHandler(async (event) => {
      * 获取用户的文集
      */
     const [rows2] = await (con as any).execute(
-      'SELECT * FROM notebooks WHERE uid = ?',
+      'SELECT * FROM notebooks WHERE uid = ? ORDER BY id DESC',
       [uid],
     )
 
     // 释放连接
     ;(con as any).end()
-    if (rows2.length > 0) {
-      return responseJson(0, '获取成功', rows2)
-    } else {
-      return responseJson(1, '获取失败')
-    }
+    return responseJson(0, '获取成功', { list: rows2 })
   } catch (error) {
     ;(con as any).end()
     setResponseStatus(event, 500)
