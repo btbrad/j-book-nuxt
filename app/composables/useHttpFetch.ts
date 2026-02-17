@@ -35,7 +35,7 @@ export const useHttpFetch = (url: string, opt: FetchOptions) => {
       if (response.status === 401) {
         token.value = ''
         await callWithNuxt(nuxtApp, navigateTo, [
-          'sign_in',
+          '/sign_in',
           { replace: true, redirectCode: 401 },
         ])
       } else if (response.status === 500) {
@@ -58,4 +58,9 @@ export const loginFetch = (opt: FetchOptions) => {
 // 文集接口
 export const notebookFetch = (opt: FetchOptions) => {
   return useHttpFetch('/api/note/notebook', opt)
+}
+
+// 文集接口
+export const notesFetch = (opt: FetchOptions) => {
+  return useHttpFetch('/api/note/notes', opt)
 }

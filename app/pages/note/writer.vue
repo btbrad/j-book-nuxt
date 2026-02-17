@@ -45,16 +45,33 @@
           :class="selectedCollection?.id === collection.id ? 'bg-zinc-700/50 border-l-2 border-orange-500' : ''"
           @click="selectCollection(collection)"
         >
-          <div class="flex items-center gap-2 truncate">
+          <div class="flex items-center gap-2 truncate flex-1 min-w-0">
             <IconAntDesignFolderOutlined class="text-sm shrink-0" />
             <span class="truncate">{{ collection.name }}</span>
           </div>
           <div class="flex items-center gap-1 shrink-0">
             <!-- <span class="text-xs text-zinc-500">{{ collection.count }}</span> -->
-            <IconAntDesignSettingOutlined
-              class="text-xs opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity"
-              @click.stop
-            />
+            <a-dropdown :trigger="['click']" @click.stop>
+              <IconAntDesignSettingOutlined
+                class="text-xs opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
+              />
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item @click="handleEditNotebook(collection)">
+                    <div class="flex items-center gap-2">
+                      <IconAntDesignEditOutlined class="text-sm" />
+                      <span>修改</span>
+                    </div>
+                  </a-menu-item>
+                  <a-menu-item @click="handleDeleteNotebook(collection)">
+                    <div class="flex items-center gap-2">
+                      <IconAntDesignDeleteOutlined class="text-sm" />
+                      <span>删除</span>
+                    </div>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
           </div>
         </div>
       </nav>
@@ -116,10 +133,10 @@
                   @click.stop
                 />
               </div>
-              <p class="text-xs text-gray-500 line-clamp-2 mb-2">{{ article.excerpt }}</p>
+              <!-- <p class="text-xs text-gray-500 line-clamp-2 mb-2">{{ article.excerpt }}</p> -->
               <div class="flex items-center justify-between text-xs text-gray-400">
-                <span>{{ article.date }}</span>
-                <span>{{ article.wordCount }} 字</span>
+                <span>{{ article.created_at }}</span>
+                <!-- <span>{{ article.wordCount }} 字</span> -->
               </div>
             </div>
           </div>
@@ -242,13 +259,44 @@
         </a-form-item>
       </div>
     </a-modal>
+
+    <!-- 修改文集弹窗 -->
+    <a-modal
+      v-model:open="showEditNotebookModal"
+      title="修改文集"
+      :ok-text="'确认'"
+      :cancel-text="'取消'"
+      @ok="handleConfirmEditNotebook"
+      @cancel="handleCancelEditNotebook"
+    >
+      <div class="py-4">
+        <a-form-item label="文集名称" :colon="false">
+          <a-input
+            v-model:value="editNotebookName"
+            placeholder="请输入文集名称"
+            @pressEnter="handleConfirmEditNotebook"
+          />
+        </a-form-item>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Modal } from 'ant-design-vue'
+
 interface CollectionData {
   id: number
   name: string
+  created_at: string
+  updated_at: string
+  uid: number
+}
+
+interface NoteData {
+  id: number
+  title: string
+  content_md: string
   created_at: string
   updated_at: string
   uid: number
@@ -280,12 +328,12 @@ const selectedCollection = ref<CollectionData>()
 const { data: notebookData, refresh }: any = await notebookFetch({
   method: 'GET',
 })
-if (notebookData.value.code === 1) {
+if (notebookData.value?.code === 1) {
   throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
 }
 
-if (!selectedCollection.value && notebookData.value.data.list.length > 0) {
-  selectedCollection.value = notebookData.value.data.list[0]
+if (!selectedCollection.value && notebookData.value?.data?.list.length > 0) {
+  selectedCollection.value = notebookData.value?.data?.list[0]
 }
 
 // 选择文集
@@ -311,7 +359,7 @@ const handleCreateNotebook = async () => {
       server: false
     })
 
-    if (postData.value.code === 0) {
+    if (postData.value?.code === 0) {
       $message.success('文集创建成功')
       // 刷新文集列表
       await refresh()
@@ -319,7 +367,7 @@ const handleCreateNotebook = async () => {
       showCreateNotebookModal.value = false
       notebookName.value = ''
     } else {
-      $message.error(postData.value.msg || '创建失败')
+      $message.error(postData.value?.msg || '创建失败')
     }
   } catch (error) {
     $message.error('创建失败，请重试')
@@ -332,47 +380,129 @@ const handleCancelCreateNotebook = () => {
   notebookName.value = ''
 }
 
-// 文章数据
-const articles = ref([
-  {
-    id: 1,
-    title: '安装 Nuxt 3',
-    excerpt: '详细介绍如何从零开始安装和配置 Nuxt 3 项目...',
-    date: '2023-03-20',
-    wordCount: 172,
-  },
-  {
-    id: 2,
-    title: 'Vue 3 组合式 API 入门',
-    excerpt: '学习 Vue 3 的组合式 API，提升代码复用性...',
-    date: '2023-03-18',
-    wordCount: 256,
-  },
-  {
-    id: 3,
-    title: 'Tailwind CSS 实用技巧',
-    excerpt: '掌握 Tailwind CSS 的核心概念和实用技巧...',
-    date: '2023-03-15',
-    wordCount: 189,
-  },
-  {
-    id: 4,
-    title: 'TypeScript 类型推断',
-    excerpt: '深入理解 TypeScript 的类型推断机制...',
-    date: '2023-03-12',
-    wordCount: 342,
-  },
-  {
-    id: 5,
-    title: '前端性能优化指南',
-    excerpt: '分享前端性能优化的最佳实践...',
-    date: '2023-03-10',
-    wordCount: 421,
-  },
-])
+// 修改文集
+const showEditNotebookModal = ref(false)
+const editNotebookName = ref('')
+const editingCollection = ref<CollectionData>()
 
-// 选中的文集和文章
-const selectedArticle = ref(articles.value[0])
+// 点击修改文集
+const handleEditNotebook = (collection: CollectionData) => {
+  editingCollection.value = collection
+  editNotebookName.value = collection.name
+  showEditNotebookModal.value = true
+}
+
+// 确认修改文集
+const handleConfirmEditNotebook = async () => {
+  if (!editNotebookName.value.trim()) {
+    $message.warning('请输入文集名称')
+    return
+  }
+
+  if (!editingCollection.value) return
+
+  try {
+    const { data: putData }: any = await notebookFetch({
+      method: 'PUT',
+      body: {
+        id: editingCollection.value.id,
+        name: editNotebookName.value,
+      },
+      server: false
+    })
+
+    if (putData.value?.code === 0) {
+      $message.success('文集修改成功')
+      // 刷新文集列表
+      await refresh()
+      // 更新选中文集的名称
+      if (selectedCollection.value?.id === editingCollection.value?.id) {
+        selectedCollection.value.name = editNotebookName.value
+      }
+      // 关闭弹窗并清空输入
+      showEditNotebookModal.value = false
+      editNotebookName.value = ''
+      editingCollection.value = undefined
+    } else {
+      $message.error(putData.value?.msg || '修改失败')
+    }
+  } catch (error) {
+    $message.error('修改失败，请重试')
+  }
+}
+
+// 取消修改文集
+const handleCancelEditNotebook = () => {
+  showEditNotebookModal.value = false
+  editNotebookName.value = ''
+  editingCollection.value = undefined
+}
+
+// 删除文集
+const handleDeleteNotebook = (collection: CollectionData) => {
+  Modal.confirm({
+    title: '确认删除',
+    content: '确认删除此文集吗？',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        const { data: deleteData }: any = await notebookFetch({
+          method: 'DELETE',
+          body: { id: collection.id },
+          server: false
+        })
+
+        if (deleteData.value?.code === 0) {
+          $message.success('文集删除成功')
+          // 如果删除的是当前选中的文集，清空选中状态或选中第一个
+          if (selectedCollection.value?.id === collection.id) {
+            const remainingCollections = notebookData.value?.data?.list?.filter(
+              (c: CollectionData) => c.id !== collection.id
+            )
+            selectedCollection.value = remainingCollections?.[0]
+          }
+          // 刷新文集列表
+          await refresh()
+        } else {
+          $message.error(deleteData.value?.msg || '删除失败')
+        }
+      } catch (error) {
+        $message.error('删除失败，请重试')
+      }
+    }
+  })
+}
+
+/**
+ * 文章
+ */
+
+// 文章数据
+const articles = ref<NoteData[]>([])
+// 选中的文章
+const selectedArticle = ref()
+// 获取文集下的文章
+const getNotes = async (isServer: boolean, notebookId: number) => {
+  const { data }: any = await notesFetch({
+    method: "GET",
+    server: isServer,
+    params: {
+      notebookId
+    }
+  })
+  if (data.value.code === 1) {
+    throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
+  }
+  articles.value = data.value.data.list
+  if (!selectedArticle.value && articles.value.length) {
+    selectedArticle.value = articles.value[0]
+  }
+}
+
+if (selectedCollection.value?.id) {
+  await getNotes(true, selectedCollection.value?.id!)
+}
 
 // 编辑器内容
 const content = ref(`### 安装 Nuxt 3
