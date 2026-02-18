@@ -90,11 +90,9 @@
       <!-- 顶部工具栏 -->
       <div class="h-14 border-b border-gray-200 flex items-center justify-between px-4 shrink-0">
         <div class="flex items-center gap-3">
-          <a-button type="text" size="small" class="text-orange-500">
-            <template #icon>
-              <IconAntDesignPlusOutlined />
-            </template>
-            新建文章
+          <a-button type="text" size="small" class="text-orange-500 flex items-center gap-1" @click="handleCreateNote">
+            <IconAntDesignPlusOutlined />
+            <span>新建文章</span>
           </a-button>
           <a-divider type="vertical" class="h-6" />
           <span class="text-gray-700 text-sm">{{ selectedCollection?.name || '选择文集' }}</span>
@@ -128,10 +126,33 @@
             >
               <div class="flex items-start justify-between gap-2 mb-1">
                 <h3 class="text-sm font-medium text-gray-800 truncate flex-1">{{ article.title }}</h3>
-                <IconAntDesignSettingOutlined
-                  class="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-orange-500 transition-all shrink-0"
-                  @click.stop
-                />
+                <a-dropdown :trigger="['click']" @click.stop>
+                  <IconAntDesignSettingOutlined
+                    class="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-orange-500 transition-all shrink-0"
+                  />
+                  <template #overlay>
+                    <a-menu>
+                      <a-menu-item @click="handlePublishArticle(article)">
+                        <div class="flex items-center gap-2">
+                          <IconAntDesignCloudUploadOutlined class="text-sm" />
+                          <span>直接发布</span>
+                        </div>
+                      </a-menu-item>
+                      <a-menu-item @click="handleMoveArticle(article)">
+                        <div class="flex items-center gap-2">
+                          <IconAntDesignFolderOutlined class="text-sm" />
+                          <span>移动文章</span>
+                        </div>
+                      </a-menu-item>
+                      <a-menu-item @click="handleDeleteArticle(article)">
+                        <div class="flex items-center gap-2">
+                          <IconAntDesignDeleteOutlined class="text-sm" />
+                          <span>删除文章</span>
+                        </div>
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                </a-dropdown>
               </div>
               <!-- <p class="text-xs text-gray-500 line-clamp-2 mb-2">{{ article.excerpt }}</p> -->
               <div class="flex items-center justify-between text-xs text-gray-400">
@@ -156,8 +177,8 @@
           <!-- 编辑器内容区 -->
           <div class="flex-1 overflow-y-auto p-5">
             <a-textarea
-              v-if="selectedArticle"
-              v-model:value="content"
+              v-if="selectedArticle && noteData"
+              v-model:value="noteData.content_md"
               class="editor-textarea"
               :auto-size="{ minRows: 20 }"
               placeholder="开始写作..."
@@ -477,6 +498,48 @@ const handleDeleteNotebook = (collection: CollectionData) => {
 /**
  * 文章
  */
+const noteData = ref<NoteData>()
+// 根据文章id获取文章内容
+const getNote = async (isServer: boolean, noteId: number) => {
+  if (isServer) {
+    // SSR 时使用 useFetch
+    const { data }: any = await noteFetch({
+      method: "GET",
+      server: true,
+      params: {
+        noteId
+      }
+    })
+    if (data.value.code === 1) {
+      throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
+    }
+    noteData.value = data.value.data
+  } else {
+    // 客户端使用 $fetch
+    try {
+      const token = useCookie('accessToken').value
+      const data: any = await $fetch('/api/note/note', {
+        method: "GET",
+        baseURL: 'http://localhost:3000',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : ''
+        },
+        params: {
+          noteId
+        }
+      })
+      if (data.code === 1) {
+        $message.error('获取文章内容失败')
+        return
+      }
+      noteData.value = data.data
+    } catch (error) {
+      $message.error('获取文章内容失败')
+    }
+  }
+  console.log('noteData', noteData.value)
+}
+
 
 // 文章数据
 const articles = ref<NoteData[]>([])
@@ -484,19 +547,47 @@ const articles = ref<NoteData[]>([])
 const selectedArticle = ref()
 // 获取文集下的文章
 const getNotes = async (isServer: boolean, notebookId: number) => {
-  const { data }: any = await notesFetch({
-    method: "GET",
-    server: isServer,
-    params: {
-      notebookId
+  if (isServer) {
+    // SSR 时使用 useFetch
+    const { data }: any = await notesFetch({
+      method: "GET",
+      server: true,
+      params: {
+        notebookId
+      }
+    })
+    if (data.value.code === 1) {
+      throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
     }
-  })
-  if (data.value.code === 1) {
-    throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
+    articles.value = data.value.data.list
+  } else {
+    // 客户端使用 $fetch
+    try {
+      const token = useCookie('accessToken').value
+      const data: any = await $fetch('/api/note/notes', {
+        method: "GET",
+        baseURL: 'http://localhost:3000',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : ''
+        },
+        params: {
+          notebookId
+        }
+      })
+      if (data.code === 1) {
+        $message.error('获取文章列表失败')
+        return
+      }
+      articles.value = data.data.list
+    } catch (error) {
+      $message.error('获取文章列表失败')
+      return
+    }
   }
-  articles.value = data.value.data.list
+
   if (!selectedArticle.value && articles.value.length) {
     selectedArticle.value = articles.value[0]
+    getNote(true, selectedArticle.value.id)
   }
 }
 
@@ -504,36 +595,100 @@ if (selectedCollection.value?.id) {
   await getNotes(true, selectedCollection.value?.id!)
 }
 
+const handleCreateNote = async () => {
+  try {
+    const token = useCookie('accessToken').value
+    const data: any = await $fetch('/api/note/note', {
+      method: 'POST',
+      baseURL: 'http://localhost:3000',
+      headers: {
+        Authorization: token ? `Bearer ${token}` : ''
+      },
+      body: {
+        notebookId: selectedCollection.value?.id,
+      }
+    })
+
+    if (data.code === 1) {
+      $message.error(data.msg)
+      return
+    }
+
+    $message.success('文章创建成功')
+    await getNotes(false, selectedCollection.value?.id!)
+  } catch (error) {
+    $message.error('创建失败，请重试')
+  }
+}
+
+// 发布文章
+const handlePublishArticle = (article: NoteData) => {
+  $message.info('发布功能开发中...')
+}
+
+// 移动文章
+const handleMoveArticle = (article: NoteData) => {
+  $message.info('移动功能开发中...')
+}
+
+// 删除文章
+const handleDeleteArticle = (article: NoteData) => {
+  Modal.confirm({
+    title: '确认删除',
+    content: '确认删除该文章吗？',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        const token = useCookie('accessToken').value
+        const data: any = await $fetch('/api/note/note', {
+          method: 'DELETE',
+          baseURL: 'http://localhost:3000',
+          headers: {
+            Authorization: token ? `Bearer ${token}` : ''
+          },
+          body: {
+            noteId: article.id
+          }
+        })
+
+        if (data.code === 1) {
+          $message.error(data.msg || '删除失败')
+          return
+        }
+
+        $message.success('文章删除成功')
+        // 如果删除的是当前选中的文章，清空选中状态或选中第一个
+        if (selectedArticle.value?.id === article.id) {
+          const remainingArticles = articles.value.filter(a => a.id !== article.id)
+          selectedArticle.value = remainingArticles[0]
+        }
+        // 刷新文章列表
+        await getNotes(false, selectedCollection.value?.id!)
+      } catch (error) {
+        $message.error('删除失败，请重试')
+      }
+    }
+  })
+}
+
 // 编辑器内容
-const content = ref(`### 安装 Nuxt 3
-
-使用以下命令创建一个新的 Nuxt 3 项目：
-
-\`\`\`bash
-npx nuxi init <project-name>
-\`\`\`
-
-### 配置 Ant Design Vue
-
-安装 Ant Design Vue：
-
-\`\`\`bash
-npm install --save ant-design-vue
-\`\`\`
-`)
+const content = ref()
 
 // 选择文章
-const selectArticle = (article: any) => {
+const selectArticle = async (article: any) => {
   selectedArticle.value = article
+  // 加载文章内容
+  await getNote(false, article.id)
 }
 
 // 统计字数和行数
 const wordCount = computed(() => {
-  return content.value.trim().split(/\s+/).filter(Boolean).length
+  return content.value?.trim().split(/\s+/).filter(Boolean).length
 })
 
 const lineCount = computed(() => {
-  return content.value.split('\n').length
+  return content.value?.split('\n').length
 })
 </script>
 

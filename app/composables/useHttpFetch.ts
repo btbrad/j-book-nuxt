@@ -60,7 +60,11 @@ export const notebookFetch = (opt: FetchOptions) => {
   return useHttpFetch('/api/note/notebook', opt)
 }
 
-// 文集接口
+// 获取文章接口
 export const notesFetch = (opt: FetchOptions) => {
   return useHttpFetch('/api/note/notes', opt)
+}
+
+export const noteFetch = (opt: FetchOptions) => {
+  return useHttpFetch('/api/note/note', opt)
 }

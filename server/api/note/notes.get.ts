@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     const placeholders = noteIdList.map(() => '?').join(',')
     const [noteRows] = await (con as any).execute(
-      `SELECT * FROM notes WHERE uid=? AND id IN (${placeholders})`,
+      `SELECT id, title, created_at FROM notes WHERE uid=? AND id IN (${placeholders}) ORDER BY id DESC`,
       [uid, ...noteIdList],
     )
 
