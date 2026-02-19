@@ -98,13 +98,11 @@
           <span class="text-gray-700 text-sm">{{ selectedCollection?.name || '选择文集' }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <a-button size="small">
-            <template #icon>
-              <IconAntDesignSaveOutlined />
-            </template>
-            保存
-          </a-button>
-          <a-button size="small" type="primary">发布</a-button>
+          <!-- <a-button size="small" class="flex items-center gap-1">
+            <IconAntDesignSaveOutlined />
+            <span>保存</span>
+          </a-button> -->
+          <a-button size="small" type="primary" @click="handlePush(2)">发布</a-button>
         </div>
       </div>
 
@@ -165,24 +163,43 @@
 
         <!-- 编辑器区域 -->
         <div class="flex-1 flex flex-col min-w-0">
-          <!-- 编辑器工具栏 -->
-          <div class="h-11 border-b border-gray-200 flex items-center px-3 gap-0.5 shrink-0">
-            <a-tooltip v-for="tool in editorTools" :key="tool.icon" :title="tool.title">
-              <a-button type="text" size="small" class="w-9 h-9">
-                <component :is="tool.icon" class="text-base" />
-              </a-button>
-            </a-tooltip>
+          <!-- 文章标题输入区 -->
+          <div v-if="selectedArticle" class="border-b border-gray-200 px-4 py-3 shrink-0">
+            <a-input
+              v-if="noteData"
+              v-model:value="noteData.title"
+              size="large"
+              placeholder="请输入文章标题"
+              :bordered="false"
+              class="title-input"
+              @input="handleInput"
+            />
+            <a-input
+              v-else
+              value="加载中..."
+              size="large"
+              :bordered="false"
+              class="title-input"
+              disabled
+            />
           </div>
 
           <!-- 编辑器内容区 -->
-          <div class="flex-1 overflow-y-auto p-5">
-            <a-textarea
-              v-if="selectedArticle && noteData"
-              v-model:value="noteData.content_md"
-              class="editor-textarea"
-              :auto-size="{ minRows: 20 }"
-              placeholder="开始写作..."
-            />
+          <div class="flex-1 overflow-hidden">
+            <div v-if="selectedArticle && noteData" class="h-full bytemd-wrapper">
+              <Editor
+                :key="selectedArticle.id"
+                :value="noteData.content_md || ''"
+                :plugins="plugins"
+                @change="handleChange"
+              />
+            </div>
+            <div v-else-if="selectedArticle && !noteData" class="h-full flex items-center justify-center text-gray-400">
+              <div class="text-center">
+                <a-spin size="large" />
+                <p class="mt-4">加载中...</p>
+              </div>
+            </div>
             <div v-else class="h-full flex items-center justify-center text-gray-400">
               <div class="text-center">
                 <IconAntDesignFileTextOutlined class="text-4xl mb-3 opacity-50" />
@@ -192,7 +209,7 @@
           </div>
 
           <!-- 底部状态栏 -->
-          <div class="h-8 border-t border-gray-200 flex items-center justify-between px-4 text-xs text-gray-500 shrink-0">
+          <!-- <div class="h-8 border-t border-gray-200 flex items-center justify-between px-4 text-xs text-gray-500 shrink-0">
             <div class="flex items-center gap-4">
               <span>Words: {{ wordCount }}</span>
               <span>Lines: {{ lineCount }}</span>
@@ -201,65 +218,10 @@
               <a-checkbox size="small">滚动同步</a-checkbox>
               <a-button type="text" size="small">回到顶部</a-button>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </main>
-
-    <!-- 右侧预览区 -->
-    <aside class="w-80 bg-gray-50 border-l border-gray-200 flex flex-col shrink-0">
-      <div class="h-12 border-b border-gray-200 flex items-center justify-between px-4 bg-white">
-        <span class="font-medium text-gray-700">预览</span>
-        <a-button type="text" size="small" class="text-gray-500">
-          <template #icon>
-            <IconAntDesignFullscreenOutlined />
-          </template>
-        </a-button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-5">
-        <article v-if="selectedArticle" class="prose prose-sm max-w-none">
-          <h2 class="text-xl font-bold mb-4">{{ selectedArticle.title }}</h2>
-
-          <p class="text-gray-700 mb-4 leading-relaxed">
-            使用以下命令创建一个新的 Nuxt 3 项目：
-          </p>
-
-          <div class="bg-gray-800 text-green-400 p-3 rounded text-sm font-mono mb-4 overflow-x-auto">
-            npx nuxi init &lt;project-name&gt;
-          </div>
-
-          <p class="text-gray-700 mb-4 leading-relaxed">
-            进入项目目录并安装依赖：
-          </p>
-
-          <div class="bg-gray-800 text-green-400 p-3 rounded text-sm font-mono mb-4 overflow-x-auto">
-            <div>cd &lt;project-name&gt;</div>
-            <div>npm install</div>
-          </div>
-
-          <h3 class="text-lg font-semibold mb-3">配置 Ant Design Vue</h3>
-
-          <p class="text-gray-700 mb-4 leading-relaxed">
-            安装 Ant Design Vue：
-          </p>
-
-          <div class="bg-gray-800 text-green-400 p-3 rounded text-sm font-mono mb-4 overflow-x-auto">
-            <div>npm install --save ant-design-vue</div>
-          </div>
-
-          <p class="text-gray-700 mb-3 leading-relaxed">
-            在 <code class="bg-gray-200 px-1.5 py-0.5 rounded text-sm">nuxt.config.ts</code> 中配置：
-          </p>
-        </article>
-        <div v-else class="h-full flex items-center justify-center text-gray-400">
-          <div class="text-center">
-            <IconAntDesignEyeOutlined class="text-4xl mb-3 opacity-50" />
-            <p>选择文章预览内容</p>
-          </div>
-        </div>
-      </div>
-    </aside>
 
     <!-- 新建文集弹窗 -->
     <a-modal
@@ -305,6 +267,15 @@
 
 <script setup lang="ts">
 import { Modal } from 'ant-design-vue'
+import gfm from '@bytemd/plugin-gfm'
+// @ts-ignore
+import { Editor } from '@bytemd/vue-next'
+import 'bytemd/dist/index.css'
+
+const plugins = [
+  gfm(),
+]
+
 
 interface CollectionData {
   id: number
@@ -321,24 +292,11 @@ interface NoteData {
   created_at: string
   updated_at: string
   uid: number
+  state: number
 }
 
 const { $message } = useNuxtApp()
 
-// 图标名称配置
-const editorTools = [
-  { icon: 'IconAntDesignFontSizeOutlined', title: '标题' },
-  { icon: 'IconAntDesignBoldOutlined', title: '加粗' },
-  { icon: 'IconAntDesignItalicOutlined', title: '斜体' },
-  { icon: 'IconAntDesignOrderedListOutlined', title: '有序列表' },
-  { icon: 'IconAntDesignUnorderedListOutlined', title: '无序列表' },
-  { icon: 'IconAntDesignLinkOutlined', title: '链接' },
-  { icon: 'IconAntDesignPictureOutlined', title: '图片' },
-  { icon: 'IconAntDesignCodeOutlined', title: '代码' },
-  { icon: 'IconAntDesignTableOutlined', title: '表格' },
-  { icon: 'IconAntDesignSyncOutlined', title: '同步' },
-  { icon: 'IconAntDesignFullscreenOutlined', title: '全屏' },
-]
 /**
  * 文集
  */
@@ -349,12 +307,12 @@ const selectedCollection = ref<CollectionData>()
 const { data: notebookData, refresh }: any = await notebookFetch({
   method: 'GET',
 })
-if (notebookData.value?.code === 1) {
+if (!notebookData.value || notebookData.value.code === 1) {
   throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
 }
 
-if (!selectedCollection.value && notebookData.value?.data?.list.length > 0) {
-  selectedCollection.value = notebookData.value?.data?.list[0]
+if (!selectedCollection.value && notebookData.value?.data?.list && notebookData.value.data.list.length > 0) {
+  selectedCollection.value = notebookData.value.data.list[0]
 }
 
 // 选择文集
@@ -510,7 +468,7 @@ const getNote = async (isServer: boolean, noteId: number) => {
         noteId
       }
     })
-    if (data.value.code === 1) {
+    if (!data.value || data.value.code === 1) {
       throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
     }
     noteData.value = data.value.data
@@ -532,7 +490,7 @@ const getNote = async (isServer: boolean, noteId: number) => {
         $message.error('获取文章内容失败')
         return
       }
-      noteData.value = data.data
+      noteData.value = data.data || undefined
     } catch (error) {
       $message.error('获取文章内容失败')
     }
@@ -556,10 +514,10 @@ const getNotes = async (isServer: boolean, notebookId: number) => {
         notebookId
       }
     })
-    if (data.value.code === 1) {
+    if (!data.value || data.value.code === 1) {
       throw createError({ statusCode: 500, statusMessage: '服务器报错！' })
     }
-    articles.value = data.value.data.list
+    articles.value = data.value.data?.list || []
   } else {
     // 客户端使用 $fetch
     try {
@@ -578,22 +536,32 @@ const getNotes = async (isServer: boolean, notebookId: number) => {
         $message.error('获取文章列表失败')
         return
       }
-      articles.value = data.data.list
+      articles.value = data.data?.list || []
     } catch (error) {
       $message.error('获取文章列表失败')
       return
     }
   }
 
+  // 不在 SSR 时加载文章内容，等客户端水合后再加载
   if (!selectedArticle.value && articles.value.length) {
     selectedArticle.value = articles.value[0]
-    getNote(true, selectedArticle.value.id)
   }
 }
 
 if (selectedCollection.value?.id) {
   await getNotes(true, selectedCollection.value?.id!)
 }
+
+// 在客户端挂载后加载文章内容
+onMounted(async () => {
+  if (selectedArticle.value) {
+    console.log('onMounted - loading article:', selectedArticle.value.id)
+    await getNote(false, selectedArticle.value.id)
+    console.log('onMounted - noteData:', noteData.value)
+    console.log('onMounted - content:', noteData.value?.content_md)
+  }
+})
 
 const handleCreateNote = async () => {
   try {
@@ -672,24 +640,96 @@ const handleDeleteArticle = (article: NoteData) => {
   })
 }
 
-// 编辑器内容
-const content = ref()
-
 // 选择文章
 const selectArticle = async (article: any) => {
   selectedArticle.value = article
+  // 先清空之前的内容，显示加载状态
+  noteData.value = undefined
   // 加载文章内容
   await getNote(false, article.id)
+  // 使用 nextTick 确保 DOM 更新
+  await nextTick()
 }
 
 // 统计字数和行数
 const wordCount = computed(() => {
-  return content.value?.trim().split(/\s+/).filter(Boolean).length
+  const text = noteData.value?.content_md || ''
+  return text.trim().split(/\s+/).filter(Boolean).length
 })
 
 const lineCount = computed(() => {
-  return content.value?.split('\n').length
+  const text = noteData.value?.content_md || ''
+  return text.split('\n').length
 })
+
+// 监听标题变化，同步更新文章列表
+watch(() => noteData.value?.title, (newTitle) => {
+  if (newTitle && selectedArticle.value) {
+    selectedArticle.value.title = newTitle
+    // 同步更新文章列表中的标题
+    const article = articles.value.find(a => a.id === selectedArticle.value?.id)
+    if (article) {
+      article.title = newTitle
+    }
+  }
+})
+
+// 发布文章
+const handlePush = async (state: number) => {
+  const token = useCookie('accessToken').value
+  const data: any = await $fetch('/api/note/note', {
+    method: 'PUT',
+    baseURL: 'http://localhost:3000',
+    headers: {
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+    body: {
+      noteId: noteData.value?.id,
+      title: noteData.value?.title,
+      content_md: noteData.value?.content_md,
+      state: state
+    }
+  })
+
+  if (data.code === 1) {
+    $message.error(data.msg || '发布失败')
+    return
+  }
+  if (state === 2) {
+    $message.success('文章发布成功')
+  }
+  // 刷新文章列表
+  await getNotes(false, selectedCollection.value?.id!)
+}
+
+// 防抖函数
+const debounce = (func: Function, delay: number) => {
+  let timer: any
+  return function (...args: any[]) {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      // @ts-expect-error
+      func.apply(this, args)
+    }, delay)
+  }
+}
+
+const save = () => {
+  handlePush(1)
+}
+
+const handleInput = debounce(save, 1000)
+
+// 编辑器内容变化处理
+const saveContent = (value: string) => {
+  if (noteData.value) {
+    noteData.value.content_md = value
+  }
+  handlePush(1)
+}
+const handleChange = debounce(saveContent, 1000)
 </script>
 
 <style scoped>
@@ -708,16 +748,30 @@ const lineCount = computed(() => {
   box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1);
 }
 
-.editor-textarea :deep(.ant-input) {
-  border: none;
-  box-shadow: none;
-  resize: none;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  line-height: 1.8;
+.bytemd-wrapper {
+  height: 100%;
 }
 
-.editor-textarea :deep(.ant-input:focus) {
+.bytemd-wrapper :deep(.bytemd) {
+  height: 100%;
+}
+
+.bytemd-wrapper :deep(.bytemd .bytemd-editor) {
+  min-height: calc(100vh - 250px);
+}
+
+.title-input :deep(.ant-input) {
+  font-size: 20px;
+  font-weight: 600;
+  padding: 8px 0;
+  color: #1f2937;
+}
+
+.title-input :deep(.ant-input::placeholder) {
+  color: #9ca3af;
+}
+
+.title-input :deep(.ant-input:focus) {
   box-shadow: none;
 }
 
