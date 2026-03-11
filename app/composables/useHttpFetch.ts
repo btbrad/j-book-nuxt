@@ -68,3 +68,8 @@ export const notesFetch = (opt: FetchOptions) => {
 export const noteFetch = (opt: FetchOptions) => {
   return useHttpFetch('/api/note/note', opt)
 }
+
+// 获取文章列表
+export const homeNotesFetch = (opt: FetchOptions) => {
+  return useHttpFetch('/api/notes', opt)
+}

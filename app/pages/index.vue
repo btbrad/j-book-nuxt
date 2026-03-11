@@ -6,7 +6,7 @@
     <main class="main-content">
       <!-- Left Column - Article List -->
       <div class="left-column">
-        <ArticleCard v-for="i in 6" :key="i" />
+        <ArticleCard v-for="i in noteListData.data.list" :key="i.id" :info="i" />
       </div>
 
       <!-- Right Column - Sidebar -->
@@ -22,7 +22,25 @@
 </template>
 
 <script setup lang="ts">
+const page = ref(1)
+const pageSize = ref(8)
+const loading = ref(false)
 
+const { data: noteListData  }: any = await homeNotesFetch({
+  method: 'GET',
+  server: true,
+  params: {
+    page: page.value,
+    pageSize: pageSize.value
+  }
+})
+console.log('noteListData', noteListData)
+if (noteListData.value.code === 1) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: '服务器报错！'
+  })
+}
 </script>
 
 <style scoped>

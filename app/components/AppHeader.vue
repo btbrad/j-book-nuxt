@@ -35,7 +35,9 @@
       </div>
 
       <div class="user-actions">
-        <div class="avatar"></div>
+        <div class="avatar">
+          <img :src="avatar" />
+        </div>
         <button class="write-btn">
           <span class="pen-icon">✏️</span>
           写文章
@@ -46,7 +48,10 @@
 </template>
 
 <script setup lang="ts">
-
+const userInfoCookie: any = useCookie('userInfo')
+console.log('userInfo', userInfoCookie.value)
+const avatar = ref('')
+avatar.value = userInfoCookie.value?.avatar
 </script>
 
 <style scoped>
@@ -147,6 +152,7 @@
   border-radius: 50%;
   background-color: #96c3e7;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .write-btn {

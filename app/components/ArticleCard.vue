@@ -1,14 +1,14 @@
 <template>
   <article class="article-card">
     <div class="article-content">
-      <h3 class="article-title">{{ title }}</h3>
-      <p class="article-excerpt">{{ excerpt }}</p>
+      <h3 class="article-title">{{ info.title }}</h3>
+      <p class="article-excerpt">{{ info.content_md }}</p>
       <div class="article-meta">
-        <span class="article-views">{{ views }}</span>
-        <span class="article-author">{{ author }}</span>
+        <!-- <span class="article-views">{{ views }}</span> -->
+        <!-- <span class="article-author">{{ author }}</span> -->
         <span class="article-stats">
-          <span class="comments">{{ comments }}</span>
-          <span class="likes">{{ likes }}</span>
+          <!-- <span class="comments">{{ comments }}</span> -->
+          <!-- <span class="likes">{{ likes }}</span> -->
         </span>
       </div>
     </div>
@@ -17,22 +17,11 @@
 </template>
 
 <script setup lang="ts">
-interface Props {
-  title?: string
-  excerpt?: string
-  views?: string
-  author?: string
-  comments?: string | number
-  likes?: string | number
-}
-
-withDefaults(defineProps<Props>(), {
-  title: '学会这招，轻松拿捏Docker!',
-  excerpt: 'Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中...',
-  views: '136.0',
-  author: '干物妹小埋',
-  comments: '10',
-  likes: '23'
+defineProps({
+  info: {
+    type: Object,
+    default: () => {}
+  }
 })
 </script>
 
